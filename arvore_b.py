@@ -191,7 +191,6 @@ class NoB:
         y = self.ptr_baixo[i]
         z.folha = y.folha
         z.nivel = y.nivel
-        z.altura = y.altura
 
         #   cuida para que as devidas chaves e ponteiros sejam transferidos de um nó para o outro.
         for j in range(0, self.t - 1):
