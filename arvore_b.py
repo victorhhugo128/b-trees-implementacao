@@ -18,21 +18,51 @@ class NoB:
 
     @staticmethod
     def definir_raiz(cls, raiz):
+        """
+        Designa um determinado nó como nova raiz.
+        :param cls: método que atua na própria classe.
+        :param raiz: nó a ser designado como raiz.
+        :return: None.
+        """
         NoB.raiz = raiz
 
+    def redefinir_niveis(self, t):
+        """
+        Ajusta o nível de todos os nós.
+        :param t: t = 0.
+        :return: None.
+        """
+        self.nivel = t
+        if self.folha:
+            return
+
+        for i in self.ptr_baixo:
+            i.redefinir_niveis(t + 1)
+
     def mostrar_arvore(self):
-        print(self.chaves)
+        """
+        Mostra as informações da árvore criada.
+        :return: None.
+        """
+        print(f"chaves = {self.chaves}, n_chaves = {self.n_chaves}, n_ptr_baixo = {len(self.ptr_baixo)}, nivel = {self.nivel}")
         for i in self.ptr_baixo:
             if i is not None:
                 i.mostrar_arvore()
 
+    def apagar_chave(self):
+        """
+        Apaga um espaço de chave, com um ponteiro correspondente.
+        :return: None.
+        """
+        self.chaves.pop(-1)
+        self.ptr_baixo.pop(-1)
 
-    # def apagar_chave(self):
-    #     # del self.chaves[-1], self.ptr_baixo[-1]
-    #     # self.n_chaves -= 1
-    #     for i in range(self.t, )
 
     def novo_no_raiz(self):
+        """
+        Define um novo nó que será a nova raiz.
+        :return: novo nó raiz.
+        """
         n = NoB(None, self.t)
         n.chaves = []
         n.ptr_baixo = [None]
@@ -44,6 +74,10 @@ class NoB:
         return n
 
     def novo_no(self):
+        """
+        Define um novo nó com número de chaves t - 1 e número de ponteiros t.
+        :return: novo nó criado.
+        """
         n = NoB(None, self.t)
         n.chaves = []
         for i in range(0, self.t - 1):
@@ -59,33 +93,34 @@ class NoB:
         return n
 
     def nova_chave(self):
+        """
+        Cria um novo espaço de chaves no nó especificado.
+        :return: None.
+        """
         self.chaves.append(None)
         self.n_chaves += 1
         self.ptr_baixo.append(None)
 
-    def busca(self, k): # list index out of range
+    def busca(self, k):
+        """
+        Busca um determinado índice na árvore. Caso ele seja achado, retorna a posição e o nó em que o índice já se
+        encontra, caso não, retorna apenas o nó em que o índice estaria.
+        :param k: índice a ser procurado.
+        :return: posição do nó, caso ele exista, e nó em que o índice está ou estaria.
+        """
         i = 0
-        while i < self.n_chaves and k > self.chaves[i]:
+        while i < self.n_chaves - 1 and k > self.chaves[i]:
             i += 1
+        print(i)
         if k == self.chaves[i]:
             return self, i
         elif self.folha:
             return self
 
-        if self.chaves[i - 1] > k:
-            return self.ptr_baixo[i - 1].busca
+        if self.chaves[i] > k:
+            return self.ptr_baixo[i].busca(k)
         else:
-            return self.ptr_baixo[i].busca
-
-    def busca_inserir(self, k):
-        i = 0
-        while i < self.n_chaves and k > self.chaves[i]: i += 1
-        if i < self.n_chaves and k == self.chaves[i]:
-            return print("Chave já existente.")
-        elif self.folha:
-            self.inserir_chave(k)
-
-        return self.busca_inserir(k)
+            return self.ptr_baixo[i + 1].busca(k)
 
     def repartir_no_filho(self, i):
         """
@@ -93,7 +128,6 @@ class NoB:
         :param i: índice do ponteiro que aponta para o filho para dividir o nó.
         :return: None
         """
-
         #   cria um novo nó que será irmão do nó que será repartido.
         z = self.novo_no()
         y = self.ptr_baixo[i]
@@ -121,6 +155,7 @@ class NoB:
         #   redefine o tamanho do nó que foi repartido.
         while len(y.chaves) != self.t - 1:
             y.chaves.pop(-1)
+            y.ptr_baixo.pop(-1)
         y.n_chaves = len(y.chaves)
         z.n_chaves = len(z.chaves)
 
@@ -130,19 +165,23 @@ class NoB:
         :param k: valor a ser inserido na árvore
         :return: None.
         """
-        if self.busca(k) is tuple:
+        #   testa o valor para saber se ele existe na árvore, caso sim, ele não completará a operação de busca.
+        if type(self.busca(k)) is tuple:
             print("Nó já existente.")
+            return
         r = self
         if r.n_chaves == 2 * self.t - 1:    # caso a raiz esteja cheia, divide e cria uma nova raiz.
             s = self.novo_no_raiz()
             NoB.raiz = s    # redefine a raiz para o novo nó.
             s.folha = False
             s.n = 0
+            s.nivel = 0
             s.ptr_baixo[0] = r
             s.repartir_no_filho(0)
             s.inserir_chave_nao_cheia(k)
         else:   # caso a raiz não esteja cheia, prossegue normalmente com a operação.
             self.inserir_chave_nao_cheia(k)
+        self.redefinir_niveis(0)
 
     def inserir_chave_nao_cheia(self, k):
         """
