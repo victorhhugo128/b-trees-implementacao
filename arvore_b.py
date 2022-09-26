@@ -5,16 +5,10 @@ class NoB:
         if NoB.raiz is None: NoB.raiz = self
         self.chaves = [chave]
         self.ptr_baixo = [None, None]
-        self.ptr_cima = None
         self.n_chaves = 1
         self.folha = True
         self.nivel = 1
-        self.altura = 1
         self.t = t
-
-    @staticmethod
-    def retornar_raiz(cls):
-        return NoB.raiz
 
     @staticmethod
     def definir_raiz(cls, raiz):
@@ -44,19 +38,83 @@ class NoB:
         Mostra as informações da árvore criada.
         :return: None.
         """
-        print(f"chaves = {self.chaves}, n_chaves = {self.n_chaves}, n_ptr_baixo = {len(self.ptr_baixo)}, nivel = {self.nivel}")
+        print(f"chaves = {self.chaves}, n_chaves = {self.n_chaves}, n_ptr_baixo = {len(self.ptr_baixo)}, nivel = {self.nivel}, altura = {self.altura}, folha = {self.folha}, t = {self.t}")
         for i in self.ptr_baixo:
             if i is not None:
                 i.mostrar_arvore()
 
-    def apagar_chave(self):
+    def apagar_chave(self, t=-1):
         """
         Apaga um espaço de chave, com um ponteiro correspondente.
         :return: None.
         """
-        self.chaves.pop(-1)
-        self.ptr_baixo.pop(-1)
+        self.chaves.pop(t)
+        self.ptr_baixo.pop(t)
+        self.n_chaves = len(self.chaves)
 
+    def retornar_no_antecessor(self, no_k, k, primeiro):
+        """
+        Retorna o antecessor de um determinado nó.
+        :param no_k: o nó em que k se encontra.
+        :param k: a própria chave k.
+        :param primeiro: deve sempre ser passado como True como forma de controlar a recursão.
+        :return: None.
+        """
+        if primeiro is True:
+            i = 0
+            if no_k.ptr_baixo[0].folha:
+                return no_k
+            else:
+                while no_k.chaves[i] != k:
+                    print(f"no_k.chave = {no_k.chaves[i]}, i = {i}")
+                    i += 1
+                return no_k.ptr_baixo[i].retornar_no_antecessor(no_k.ptr_baixo[i], k, False)
+        else:
+            # print(self.chaves)
+            if self.ptr_baixo[0].folha:
+                return self
+            else:
+                return self.ptr_baixo[self.n_chaves].retornar_no_antecessor(self.ptr_baixo, k, False)
+
+    def retornar_no_sucessor(self, no_k, k, primeiro):
+        """
+        Retorna o sucessor de um determinado nó.
+        :param no_k: nó em que a chave k se encontra.
+        :param k: a própria chave k.
+        :param primeiro: deve sempre ser passado como True como forma de controlar a recursão.
+        :return: sucessor de k.
+        """
+        if primeiro is True:
+            i = 0
+            if no_k.ptr_baixo[0].folha:
+                return no_k
+            else:
+                while no_k.chaves[i] != k:
+                    i += 1
+                return no_k.ptr_baixo[i + 1].retornar_no_sucessor(no_k.ptr_baixo[i], k, False)
+        else:
+            # print(self.chaves)
+            if self.ptr_baixo[0].folha:
+                return self
+            else:
+                return self.ptr_baixo[0].retornar_no_sucessor(self.ptr_baixo, k, False)
+
+    def juntar_filhos(self, indice):
+        """
+        Junta dois filhos de uma chave pai no indice especifico.
+        :param indice: indice da chave que irá juntar os nós filhos.
+        :return: None.
+        """
+        filho1 = self.ptr_baixo[indice]
+        filho2 = self.ptr_baixo[indice + 1]
+        print(filho1.chaves)
+
+        for i in range(0, filho2.n_chaves):
+            filho1.nova_chave()
+            indice_1 = filho1.n_chaves - 1
+            filho1.chaves[indice_1] = filho2.chaves[i]
+            filho1.ptr_baixo[indice_1 + 1] = None
+            print(filho1.chaves)
 
     def novo_no_raiz(self):
         """
@@ -159,6 +217,54 @@ class NoB:
         y.n_chaves = len(y.chaves)
         z.n_chaves = len(z.chaves)
 
+    def remover_chave_1(self, k):
+        """
+        Caso mais simples de remoção na árvore b, que ocorre quando a chave se encontra em uma folha e continuará com
+        t - 1 após a remoção.
+        :param k: a chave a ser removida da árvore.
+        :return: None.
+        """
+        if type(self.busca(k)) is NoB:
+            print("Chave não existe, impossível remover.")
+            return
+        no, indice = self.busca(k)
+        no.apagar_chave(indice)
+
+    def remover_chave_2(self, k):
+        """
+        Caso que ocorre quando a chave a ser retirada se encontra em um nó interno, em que é necessário fazer uma
+        leitura sobre os sucessores e antecessores da chave em questão.
+        :param k: chave a ser removida.
+        :return: None.
+        """
+        if type(self.busca(k)) is NoB:
+            print("Chave não existe, impossível remover.")
+            return
+        no, indice = self.busca(k)
+        no_pai_antecessor = no.retornar_no_antecessor(no, k, True)
+        indice_a = no_pai_antecessor.n_chaves - 1
+        no_pai_sucessor = no.retornar_no_sucessor(no, k, True)
+        if no_pai_antecessor.ptr_baixo[indice_a].n_chaves > self.t:
+            filho = no_pai_antecessor.ptr_baixo[indice_a]
+            aux = filho.chaves[filho.n_chaves - 1]
+            filho.apagar_chave()
+            no.chaves[indice] = aux
+        elif no_pai_sucessor.ptr_baixo[0].n_chaves > self.t:
+            filho = no_pai_sucessor.ptr_baixo[0]
+            aux = filho.chaves[0]
+            filho.apagar_chave(0)
+            no.chaves[indice] = aux
+        else:
+            filho1 = no_pai_antecessor.ptr_baixo[indice_a]
+            filho2 = no_pai_antecessor.ptr_baixo[indice_a + 1]
+            print(filho1.chaves, filho2.chaves)
+            no_pai_antecessor.juntar_filhos(indice_a)
+            del filho2
+            aux = filho1.chaves[filho1.n_chaves - 1]
+            filho1.apagar_chave()
+            print(filho1.chaves, filho1.n_chaves)
+            no.chaves[indice] = aux
+
     def inserir_chave(self, k):
         """
         Insere uma chave k na árvore B.
@@ -182,6 +288,7 @@ class NoB:
         else:   # caso a raiz não esteja cheia, prossegue normalmente com a operação.
             self.inserir_chave_nao_cheia(k)
         self.redefinir_niveis(0)
+        # self.redefinir_altura(0)
 
     def inserir_chave_nao_cheia(self, k):
         """
@@ -217,9 +324,10 @@ if __name__ == "__main__":
     # NoB.raiz.inserir_chave(8)
     # NoB.raiz.inserir_chave(9)
     # NoB.raiz.inserir_chave(10)
-    for i in range(2, 25):
+    for i in range(2, 22):
         NoB.raiz.inserir_chave(i)
 
-    NoB.raiz.inserir_chave(2)
+    NoB.raiz.mostrar_arvore()
+    NoB.raiz.remover_chave_2(9)
 
     NoB.raiz.mostrar_arvore()
