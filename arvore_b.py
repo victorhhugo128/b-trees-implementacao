@@ -38,7 +38,7 @@ class NoB:
         Mostra as informações da árvore criada.
         :return: None.
         """
-        print(f"chaves = {self.chaves}, n_chaves = {self.n_chaves}, n_ptr_baixo = {len(self.ptr_baixo)}, nivel = {self.nivel}, altura = {self.altura}, folha = {self.folha}, t = {self.t}")
+        print(f"chaves = {self.chaves}, n_chaves = {self.n_chaves}, n_ptr_baixo = {len(self.ptr_baixo)}, nivel = {self.nivel}, folha = {self.folha}, t = {self.t}")
         for i in self.ptr_baixo:
             if i is not None:
                 i.mostrar_arvore()
