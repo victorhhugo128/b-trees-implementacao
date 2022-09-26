@@ -92,7 +92,6 @@ class NoB:
                     i += 1
                 return no_k.ptr_baixo[i + 1].retornar_no_sucessor(no_k.ptr_baixo[i], k, False)
         else:
-            # print(self.chaves)
             if self.ptr_baixo[0].folha:
                 return self
             else:
@@ -166,7 +165,6 @@ class NoB:
         i = 0
         while i < self.n_chaves - 1 and k > self.chaves[i]:
             i += 1
-        print(i)
         if k == self.chaves[i]:
             return self, i
         elif self.folha:
