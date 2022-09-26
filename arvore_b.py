@@ -66,7 +66,6 @@ class NoB:
                 return no_k
             else:
                 while no_k.chaves[i] != k:
-                    print(f"no_k.chave = {no_k.chaves[i]}, i = {i}")
                     i += 1
                 return no_k.ptr_baixo[i].retornar_no_antecessor(no_k.ptr_baixo[i], k, False)
         else:
@@ -107,14 +106,12 @@ class NoB:
         """
         filho1 = self.ptr_baixo[indice]
         filho2 = self.ptr_baixo[indice + 1]
-        print(filho1.chaves)
 
         for i in range(0, filho2.n_chaves):
             filho1.nova_chave()
             indice_1 = filho1.n_chaves - 1
             filho1.chaves[indice_1] = filho2.chaves[i]
             filho1.ptr_baixo[indice_1 + 1] = None
-            print(filho1.chaves)
 
     def novo_no_raiz(self):
         """
@@ -256,12 +253,10 @@ class NoB:
         else:
             filho1 = no_pai_antecessor.ptr_baixo[indice_a]
             filho2 = no_pai_antecessor.ptr_baixo[indice_a + 1]
-            print(filho1.chaves, filho2.chaves)
             no_pai_antecessor.juntar_filhos(indice_a)
             del filho2
             aux = filho1.chaves[filho1.n_chaves - 1]
             filho1.apagar_chave()
-            print(filho1.chaves, filho1.n_chaves)
             no.chaves[indice] = aux
 
     def inserir_chave(self, k):
